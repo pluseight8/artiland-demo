@@ -60,6 +60,7 @@
   const previous = dialog.querySelector('[data-gallery-prev]');
   const next = dialog.querySelector('[data-gallery-next]');
   const multiple = photos.length > 1;
+  const root = document.documentElement;
   const slideMotion = window.matchMedia('(prefers-reduced-motion: no-preference)');
   let selected = 0;
   let opener;
@@ -123,8 +124,9 @@
         const source = imageSource(photos[photoIndex].image);
         if (preview.getAttribute('src') !== source) preview.src = source;
       });
+      root.classList.toggle('gallery-gutter', window.innerWidth > root.clientWidth);
       dialog.showModal();
-      document.documentElement.classList.add('gallery-active');
+      root.classList.add('gallery-active');
       select(index);
     });
   }
@@ -151,7 +153,7 @@
   dialog.addEventListener('close', () => {
     slideAnimation?.cancel();
     swipe = undefined;
-    document.documentElement.classList.remove('gallery-active');
+    root.classList.remove('gallery-active', 'gallery-gutter');
     opener?.focus({ preventScroll: true });
   });
   dialog.addEventListener('keydown', (event) => {

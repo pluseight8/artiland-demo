@@ -5,6 +5,9 @@ html.gallery-active body {
 
 html.gallery-active {
   background: #1d1829;
+}
+
+html.gallery-active.gallery-gutter {
   scrollbar-gutter: stable;
 }
 
