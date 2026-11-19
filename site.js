@@ -1,79 +1,109 @@
-const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
-const stage = document.querySelector('[data-motion-stage]');
+const tour = document.querySelector('[data-scroll-tour]');
 
-if (stage) {
-  const finePointer = window.matchMedia('(min-width: 801px) and (hover: hover) and (pointer: fine)');
-  const centerOffset = (position, start, length) => Math.max(-1, Math.min(1, 2 * (position - start) / length - 1));
-  let frame = 0;
+if (tour) {
+  const preference = window.matchMedia('(prefers-reduced-motion: no-preference) and (min-height: 500px)');
+  const chapters = [...tour.querySelectorAll('[data-tour-chapter]')];
+  const visual = tour.querySelector('[data-tour-visual]');
+  const canvas = tour.querySelector('[data-tour-frames]');
+  const progress = tour.querySelector('[data-tour-progress]');
+  const mobile = window.matchMedia('(max-width: 740px)');
+  const hero = document.querySelector('.hero-media');
+  const heroImage = hero.querySelector('.venue-photo, .venue-art');
+  const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
+  const smooth = (value) => value * value * (3 - 2 * value);
+  const originals = chapters.map((chapter) => chapter.querySelector('.chapter-media'));
+  let frames = [];
+  let tick = 0;
 
-  function resetTilt() {
-    cancelAnimationFrame(frame);
-    stage.style.removeProperty('--tilt-x');
-    stage.style.removeProperty('--tilt-y');
-  }
+  function draw() {
+    tick = 0;
+    const tourBounds = tour.getBoundingClientRect();
+    const viewport = window.innerHeight;
+    const heroBounds = hero.getBoundingClientRect();
 
-  stage.addEventListener('pointermove', (event) => {
-    if (reducedMotion.matches || !finePointer.matches || event.pointerType !== 'mouse') return;
-
-    cancelAnimationFrame(frame);
-    frame = requestAnimationFrame(() => {
-      const bounds = stage.getBoundingClientRect();
-      const horizontal = centerOffset(event.clientX, bounds.left, bounds.width);
-      const vertical = centerOffset(event.clientY, bounds.top, bounds.height);
-      stage.style.setProperty('--tilt-x', `${(-vertical * 5).toFixed(2)}deg`);
-      stage.style.setProperty('--tilt-y', `${(horizontal * 6).toFixed(2)}deg`);
-    });
-  }, { passive: true });
-
-  stage.addEventListener('pointerleave', resetTilt);
-  stage.addEventListener('pointercancel', resetTilt);
-  reducedMotion.addEventListener('change', resetTilt);
-  finePointer.addEventListener('change', resetTilt);
-}
-
-if ('IntersectionObserver' in window && 'animate' in Element.prototype) {
-  const activeReveals = new Set();
-  const observer = new IntersectionObserver((entries) => {
-    for (const entry of entries) {
-      if (!entry.isIntersecting) continue;
-
-      const element = entry.target;
-      observer.unobserve(element);
-      if (reducedMotion.matches) continue;
-
-      const delay = Math.min(320, Math.max(0, Number(element.dataset.revealDelay) || 0));
-      const animation = element.animate([
-        { opacity: .58, translate: '0 22px' },
-        { opacity: 1, translate: '0 0' }
-      ], {
-        duration: 640,
-        delay,
-        easing: 'cubic-bezier(.18,.72,.28,1)',
-        fill: 'backwards'
-      });
-
-      activeReveals.add(animation);
-      const forget = () => activeReveals.delete(animation);
-      animation.finished.then(forget, forget);
+    if (heroBounds.bottom > 0) {
+      const travel = clamp(1 - heroBounds.bottom / heroBounds.height, 0, 1);
+      heroImage.style.transform = `scale(${(1.045 - travel * .045).toFixed(4)})`;
     }
-  }, { rootMargin: '0px 0px -5% 0px', threshold: .06 });
 
-  document.querySelectorAll('[data-reveal]').forEach((element) => observer.observe(element));
-  reducedMotion.addEventListener('change', () => {
-    if (reducedMotion.matches) activeReveals.forEach((animation) => animation.cancel());
-  });
-}
+    if (tourBounds.bottom <= 0 || tourBounds.top >= viewport) return;
 
-const partyStage = document.querySelector('[data-party-stage]');
+    const viewBottom = Math.max(0, visual.getBoundingClientRect().bottom);
+    const playhead = mobile.matches
+      ? Math.max(viewport * .56, viewBottom + (viewport - viewBottom) * .42)
+      : viewport * .53;
+    const centers = chapters.map((chapter) => {
+      const bounds = chapter.getBoundingClientRect();
+      return bounds.top + bounds.height * .5;
+    });
 
-if (partyStage) {
-  const options = [...document.querySelectorAll('details[data-party]')];
+    const next = centers.findIndex((center) => center >= playhead);
+    const last = centers.length - 1;
+    const upper = next < 0 ? last : next;
+    const lower = Math.max(0, upper - 1);
+    const fraction = next < 0
+      ? 1
+      : centerFraction(lower, upper, playhead, centers);
+    const position = lower + fraction;
+    const overlay = smooth(clamp((fraction - .22) / .56, 0, 1));
 
-  function syncPartyStage() {
-    const openOption = options.find((option) => option.open);
-    if (openOption) partyStage.dataset.active = openOption.dataset.party;
+    frames.forEach(({ frame, image }, index) => {
+      frame.style.opacity = index === lower ? '1' : index === upper ? overlay.toFixed(4) : '0';
+      const distance = clamp(index - position, -1, 1);
+      const scale = 1.09 + Math.abs(distance) * .045;
+      image.style.transform = `translate3d(0,${(distance * 3.1).toFixed(3)}%,0) scale(${scale.toFixed(4)})`;
+    });
+
+    const fullTravel = clamp((playhead - tourBounds.top) / tourBounds.height, 0, 1);
+    progress.style.transform = `scaleX(${fullTravel.toFixed(4)})`;
   }
 
-  options.forEach((option) => option.addEventListener('toggle', syncPartyStage));
-  syncPartyStage();
+  function centerFraction(lower, upper, playhead, centers) {
+    if (lower === upper) return 0;
+    return clamp((playhead - centers[lower]) / (centers[upper] - centers[lower]), 0, 1);
+  }
+
+  function requestDraw() {
+    if (!tick) tick = requestAnimationFrame(draw);
+  }
+
+  function syncMotion() {
+    if (!preference.matches) {
+      window.removeEventListener('scroll', requestDraw);
+      window.removeEventListener('resize', requestDraw);
+      cancelAnimationFrame(tick);
+      tick = 0;
+      delete tour.dataset.motion;
+      heroImage.style.removeProperty('transform');
+      originals.forEach((figure) => figure.querySelector('a')?.removeAttribute('tabindex'));
+      return;
+    }
+
+    if (!frames.length) {
+      frames = originals.map((figure) => {
+        const frame = document.createElement('div');
+        const original = figure.querySelector('.venue-photo, .venue-art');
+        const image = original instanceof HTMLImageElement ? original.cloneNode(false) : document.createElement('div');
+        if (image instanceof HTMLImageElement) {
+          image.alt = '';
+        } else {
+          image.className = original.className;
+          image.append(document.createElement('span'));
+        }
+        frame.className = 'tour-frame';
+        frame.append(image);
+        canvas.append(frame);
+        return { frame, image };
+      });
+    }
+
+    originals.forEach((figure) => figure.querySelector('a')?.setAttribute('tabindex', '-1'));
+    tour.dataset.motion = 'on';
+    window.addEventListener('scroll', requestDraw, { passive: true });
+    window.addEventListener('resize', requestDraw);
+    requestDraw();
+  }
+
+  preference.addEventListener('change', syncMotion);
+  syncMotion();
 }
