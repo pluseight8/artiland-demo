@@ -75,7 +75,6 @@ if (tour) {
       tick = 0;
       delete tour.dataset.motion;
       heroImage.style.removeProperty('transform');
-      originals.forEach((figure) => figure.querySelector('a')?.removeAttribute('tabindex'));
       return;
     }
 
@@ -97,7 +96,6 @@ if (tour) {
       });
     }
 
-    originals.forEach((figure) => figure.querySelector('a')?.setAttribute('tabindex', '-1'));
     tour.dataset.motion = 'on';
     window.addEventListener('scroll', requestDraw, { passive: true });
     window.addEventListener('resize', requestDraw);
