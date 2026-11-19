@@ -10,9 +10,11 @@
   <meta name="description" content="АРТиЛЕНД — детская игровая в Аксае. Горка, батут, аэрохоккей и дни рождения на проспекте Ленина, 35А.">
   <link rel="icon" href="data:,">
   <title>АРТиЛЕНД — игровая и детские праздники в Аксае</title>
-  <script src="theme.js?v=play-album"></script>
-  <link rel="stylesheet" href="styles.css?v=play-album">
-  <script defer src="site.js?v=play-album"></script>
+  <script src="theme.js?v=motion-gallery"></script>
+  <link rel="stylesheet" href="styles.css?v=motion-gallery">
+  <link rel="stylesheet" href="gallery.css?v=motion-gallery">
+  <script defer src="site.js?v=motion-gallery"></script>
+  <script defer src="gallery.js?v=motion-gallery"></script>
 </head>
 <body>
   <a class="skip-link" href="#main">К содержанию</a>
@@ -40,20 +42,19 @@
       <div class="cover">
         <div class="cover-copy">
           <p class="cover-name">Детская игровая в Аксае</p>
-          <h1 id="hero-title">Здесь<br>играют<span>.</span></h1>
+          <h1 id="hero-title"><span class="cover-line">Здесь</span> <span class="cover-line">играют<span class="cover-dot">.</span></span></h1>
           <p class="cover-lead">Прыгайте на батуте, играйте в аэрохоккей и зовите друзей на день рождения к нам в АРТиЛЕНД.</p>
           <div class="cover-actions">
             <a class="button" href="#play">Посмотреть игровую <span aria-hidden="true">↓</span></a>
-            <a class="link" href="#contacts">Как нас найти</a>
+            <button type="button" class="link gallery-entry" data-gallery-launch hidden>Все 5 фото</button>
           </div>
         </div>
-        <figure class="cover-frame">
+        <figure class="cover-frame" data-gallery-item>
           <div class="cover-window">
-            <!-- PHOTO:playground -->
-            <div class="venue-art art-cover" aria-hidden="true"><i></i><b></b></div>
-            <!-- /PHOTO:playground -->
+            <img class="venue-photo" src="assets/playground.webp" width="1600" height="900" alt="Игровой комплекс АРТиЛЕНДа с горкой" fetchpriority="high" decoding="async">
+            <button type="button" class="image-open" data-gallery-open hidden aria-label="Увеличить фото «Игровой комплекс»"><span aria-hidden="true"></span></button>
           </div>
-          <figcaption><a class="link" href="https://yandex.ru/maps/-/CXWBUJ98">Фото игровой <span aria-hidden="true">↗</span></a></figcaption>
+          <figcaption><span class="photo-caption" data-gallery-caption>Игровой комплекс</span></figcaption>
         </figure>
         <span class="cover-track" aria-hidden="true"></span>
       </div>
@@ -66,72 +67,68 @@
 
     <section class="rooms container" id="play" aria-labelledby="rooms-title">
       <div class="section-head">
-        <h2 id="rooms-title">Что у нас<br>в игровой</h2>
-        <nav class="room-links" aria-label="Игровые зоны">
+        <h2 id="rooms-title" data-reveal>Что у нас<br>в игровой</h2>
+        <nav class="room-links" aria-label="Игровые зоны" data-reveal="90">
           <a href="#playhouse">Горка</a><a href="#trampoline">Батут</a><a href="#hockey">Аэрохоккей</a>
         </nav>
       </div>
       <div class="room-stack" data-room-stack>
-        <article class="room room-playhouse" id="playhouse" data-room>
+        <article class="room room-playhouse" id="playhouse" data-room data-gallery-item>
           <div class="room-sheet">
             <div class="room-image">
-              <!-- PHOTO:playhouse -->
-              <div class="venue-art art-house" aria-hidden="true"><i></i></div>
-              <!-- /PHOTO:playhouse -->
+              <img class="venue-photo" src="assets/playhouse.webp" width="591" height="1050" alt="Игровой домик с цветной крышей и розовым проёмом" loading="lazy" decoding="async">
+            <button type="button" class="image-open" data-gallery-open hidden aria-label="Увеличить фото «Игровой домик»"><span aria-hidden="true"></span></button>
             </div>
             <div class="room-copy">
-              <h3>Горка<br>и домик</h3>
-              <p>Забирайтесь в домик и съезжайте с горки. А ещё у нас есть интерактивный пол для подвижных игр.</p>
-              <a class="link" href="https://yandex.ru/maps/-/CXWBUVNl">Фото домика <span aria-hidden="true">↗</span></a>
+              <h3 data-reveal>Горка<br>и домик</h3>
+              <p data-reveal="70">Забирайтесь в домик и съезжайте с горки. А ещё у нас есть интерактивный пол для подвижных игр.</p>
+              <span class="sr-only" data-gallery-caption>Игровой домик</span>
             </div>
           </div>
         </article>
-        <article class="room room-trampoline" id="trampoline" data-room>
+        <article class="room room-trampoline" id="trampoline" data-room data-gallery-item>
           <div class="room-sheet">
             <div class="room-image">
-              <!-- PHOTO:trampoline -->
-              <div class="venue-art art-jump" aria-hidden="true"><i></i></div>
-              <!-- /PHOTO:trampoline -->
+              <img class="venue-photo" src="assets/trampoline.webp" width="788" height="1050" alt="Батут с синей окантовкой и защитной сеткой" loading="lazy" decoding="async">
+            <button type="button" class="image-open" data-gallery-open hidden aria-label="Увеличить фото «Батут»"><span aria-hidden="true"></span></button>
             </div>
             <div class="room-copy">
-              <h3>Батут</h3>
-              <p>Здесь можно попрыгать в своё удовольствие. Батут окружён защитной сеткой.</p>
-              <a class="link" href="https://yandex.ru/maps/-/CXWBUKIm">Фото батута <span aria-hidden="true">↗</span></a>
+              <h3 data-reveal>Батут</h3>
+              <p data-reveal="70">Здесь можно попрыгать в своё удовольствие. Батут окружён защитной сеткой.</p>
+              <span class="sr-only" data-gallery-caption>Батут</span>
             </div>
           </div>
         </article>
-        <article class="room room-hockey" id="hockey" data-room>
+        <article class="room room-hockey" id="hockey" data-room data-gallery-item>
           <div class="room-sheet">
             <div class="room-image">
-              <!-- PHOTO:hockey -->
-              <div class="venue-art art-hockey" aria-hidden="true"><i></i></div>
-              <!-- /PHOTO:hockey -->
+              <img class="venue-photo" src="assets/hockey.webp" width="788" height="1050" alt="Стол для аэрохоккея с красными битами" loading="lazy" decoding="async">
+            <button type="button" class="image-open" data-gallery-open hidden aria-label="Увеличить фото «Аэрохоккей»"><span aria-hidden="true"></span></button>
             </div>
             <div class="room-copy">
-              <h3>Аэро&shy;хоккей</h3>
-              <p>Берите биту, зовите второго игрока и защищайте ворота. Для передышки у нас есть игровая приставка.</p>
-              <a class="link" href="https://yandex.ru/maps/-/CXWBU61f">Фото аэрохоккея <span aria-hidden="true">↗</span></a>
+              <h3 data-reveal>Аэро&shy;хоккей</h3>
+              <p data-reveal="70">Берите биту, зовите второго игрока и защищайте ворота. Для передышки у нас есть игровая приставка.</p>
+              <span class="sr-only" data-gallery-caption>Аэрохоккей</span>
             </div>
           </div>
         </article>
       </div>
-      <a class="link gallery-link" href="https://yandex.ru/maps/org/detskoye_igrovoye_prostranstvo_artilend/229151160063/gallery/">Вся галерея в Яндекс Картах <span aria-hidden="true">↗</span></a>
+      <button type="button" class="button gallery-link" data-gallery-launch hidden>Смотреть все фотографии <span aria-hidden="true">↗</span></button>
     </section>
 
     <section class="celebration" id="birthday" aria-labelledby="party-title">
       <div class="container celebration-layout">
         <div class="celebration-copy">
-          <h2 id="party-title">День<br>рождения<br>у нас</h2>
-          <p>Поможем выбрать программу с аниматором. Пока дети играют, взрослые могут отдохнуть за столом.</p>
+          <h2 id="party-title" data-reveal>День<br>рождения<br>у нас</h2>
+          <p data-reveal="75">Поможем выбрать программу с аниматором. Пока дети играют, взрослые могут отдохнуть за столом.</p>
           <a class="button" href="#contact-preview">Обсудить праздник <span aria-hidden="true">↗</span></a>
         </div>
-        <figure class="celebration-frame">
+        <figure class="celebration-frame" data-gallery-item data-reveal="80">
           <div class="celebration-image">
-            <!-- PHOTO:dining -->
-            <div class="venue-art art-party" aria-hidden="true"></div>
-            <!-- /PHOTO:dining -->
+            <img class="venue-photo" src="assets/dining.webp" width="701" height="1050" alt="Столы и стулья в зоне для праздников АРТиЛЕНДа" loading="lazy" decoding="async">
+            <button type="button" class="image-open" data-gallery-open hidden aria-label="Увеличить фото «Зал для праздников»"><span aria-hidden="true"></span></button>
           </div>
-          <figcaption><a class="link" href="https://yandex.ru/maps/-/CXWBQ8Nh">Фото зала для праздников <span aria-hidden="true">↗</span></a></figcaption>
+          <figcaption><span class="photo-caption" data-gallery-caption>Зал для праздников</span></figcaption>
         </figure>
         <div class="programs">
           <h3>Программы</h3>
@@ -153,7 +150,7 @@
 
     <section class="summer container" aria-labelledby="summer-title">
       <span class="star" aria-hidden="true"></span>
-      <div>
+      <div data-reveal>
         <h2 id="summer-title">Нескучные каникулы</h2>
         <p>Летом 2026 года мы устраивали игры, прогулки и кулинарные занятия.</p>
       </div>
@@ -161,11 +158,11 @@
     </section>
 
     <section class="reviews container" id="reviews" aria-labelledby="reviews-title">
-      <div class="reviews-score">
+      <div class="reviews-score" data-reveal>
         <strong>5,0<span aria-hidden="true">★</span></strong>
         <p>38 оценок · 32 отзыва</p>
       </div>
-      <div>
+      <div data-reveal="100">
         <h2 id="reviews-title">Что говорят родители</h2>
         <p>В отзывах отмечают игры для детей разного возраста, помощь администратора во время праздника и отдельную зону для отдыха взрослых.</p>
         <a class="link" href="https://yandex.ru/maps/org/detskoye_igrovoye_prostranstvo_artilend/229151160063/reviews/">Отзывы в Яндекс Картах <span aria-hidden="true">↗</span></a>
@@ -176,7 +173,7 @@
       <div class="container contacts-layout">
         <div class="address">
           <h2 id="contacts-title">Как нас найти</h2>
-          <p class="address-no" aria-hidden="true">35А</p>
+          <p class="address-no" aria-hidden="true" data-reveal>35А</p>
           <p>Аксай, проспект Ленина, 35А</p>
           <a class="button button-light" href="https://yandex.ru/maps/org/detskoye_igrovoye_prostranstvo_artilend/229151160063/">Открыть карту <span aria-hidden="true">↗</span></a>
         </div>
@@ -214,7 +211,15 @@
         <p>В демоверсии нет форм, личного кабинета, онлайн-оплаты и встроенных счётчиков. Ручной выбор темы сохраняется в браузере. Чтобы сбросить его, переключитесь на системную тему.</p>
         <p>Хостинг может записывать технические сведения об обращении, например IP-адрес. Яндекс Карты открываются по ссылке и применяют свои правила обработки данных.</p>
       </details>
-      <!-- PHOTO_CREDITS -->
+      <details id="photo-credits" name="site-info">
+          <summary>Источники фотографий</summary>
+          <p>Снимки из карточки АРТиЛЕНДа в Яндекс Картах.</p>
+          <ul class="photo-credits-list">
+            <li><a href="https://yandex.ru/maps/-/CXWBUJ98">Игровой комплекс</a> и <a href="https://yandex.ru/maps/-/CXWBUVNl">домик</a> опубликовал Инженероподобный Сергий.</li>
+            <li><a href="https://yandex.ru/maps/-/CXWBUKIm">Батут</a> и <a href="https://yandex.ru/maps/-/CXWBU61f">аэрохоккей</a> опубликовал Артем Уваров.</li>
+            <li><a href="https://yandex.ru/maps/-/CXWBQ8Nh">Зал для праздников</a> опубликовал Александр Поляков.</li>
+          </ul>
+        </details>
     </div>
     <a class="link" href="#top">В начало <span aria-hidden="true">↑</span></a>
   </footer>
