@@ -1,107 +1,82 @@
-const tour = document.querySelector('[data-scroll-tour]');
+const stack = document.querySelector('[data-room-stack]');
 
-if (tour) {
-  const preference = window.matchMedia('(prefers-reduced-motion: no-preference) and (min-height: 500px)');
-  const chapters = [...tour.querySelectorAll('[data-tour-chapter]')];
-  const visual = tour.querySelector('[data-tour-visual]');
-  const canvas = tour.querySelector('[data-tour-frames]');
-  const progress = tour.querySelector('[data-tour-progress]');
-  const mobile = window.matchMedia('(max-width: 740px)');
-  const hero = document.querySelector('.hero-media');
-  const heroImage = hero.querySelector('.venue-photo, .venue-art');
-  const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
-  const smooth = (value) => value * value * (3 - 2 * value);
-  const originals = chapters.map((chapter) => chapter.querySelector('.chapter-media'));
-  let frames = [];
-  let tick = 0;
+if (stack) {
+  const motion = window.matchMedia('(prefers-reduced-motion: no-preference)');
+  const pins = window.matchMedia('(min-width: 861px) and (min-height: 690px)');
+  const rooms = [...stack.querySelectorAll('[data-room]')];
+  const links = [...document.querySelectorAll('.room-links a')];
+  const photos = [document.querySelector('.cover-window'), ...stack.querySelectorAll('.room-image')];
+  let currentLink = null;
+  let frame = 0;
+
+  function setCurrent(room) {
+    const link = room ? links.find((item) => item.hash === `#${room.id}`) : null;
+    if (currentLink === link) return;
+
+    currentLink?.removeAttribute('aria-current');
+    link?.setAttribute('aria-current', 'location');
+    currentLink = link;
+  }
 
   function draw() {
-    tick = 0;
-    const tourBounds = tour.getBoundingClientRect();
-    const viewport = window.innerHeight;
-    const heroBounds = hero.getBoundingClientRect();
+    frame = 0;
 
-    if (heroBounds.bottom > 0) {
-      const travel = clamp(1 - heroBounds.bottom / heroBounds.height, 0, 1);
-      heroImage.style.transform = `scale(${(1.045 - travel * .045).toFixed(4)})`;
+    const height = window.innerHeight;
+    const readingLine = height * .37;
+    const photoRects = photos.map((photo) => photo.getBoundingClientRect());
+    const roomRects = rooms.map((room) => room.getBoundingClientRect());
+    const activeRoom = roomRects.findLastIndex((rect) => rect.top <= readingLine && rect.bottom >= readingLine);
+
+    setCurrent(rooms[activeRoom]);
+
+    photos.forEach((photo, index) => {
+      const bounds = photoRects[index];
+      if (bounds.bottom < -50 || bounds.top > height + 50) return;
+
+      const progress = 1 - 2 * (bounds.top + bounds.height / 2) / height;
+      const offset = Math.max(-1, Math.min(1, progress)) * Math.min(12, bounds.height * .038);
+      photo.style.setProperty('--photo-shift', `${offset.toFixed(1)}px`);
+      photo.style.setProperty('--photo-scale', '1.085');
+    });
+
+    if (pins.matches) {
+      rooms.slice(0, -1).forEach((room, index) => {
+        const rect = roomRects[index];
+        const overlap = (rect.bottom - roomRects[index + 1].top) / (rect.height * .64);
+        const depth = Math.max(0, Math.min(1, overlap));
+        room.style.setProperty('--sheet-scale', (1 - .045 * depth).toFixed(4));
+      });
     }
-
-    if (tourBounds.bottom <= 0 || tourBounds.top >= viewport) return;
-
-    const viewBottom = Math.max(0, visual.getBoundingClientRect().bottom);
-    const playhead = mobile.matches
-      ? Math.max(viewport * .56, viewBottom + (viewport - viewBottom) * .42)
-      : viewport * .53;
-    const centers = chapters.map((chapter) => {
-      const bounds = chapter.getBoundingClientRect();
-      return bounds.top + bounds.height * .5;
-    });
-
-    const next = centers.findIndex((center) => center >= playhead);
-    const last = centers.length - 1;
-    const upper = next < 0 ? last : next;
-    const lower = Math.max(0, upper - 1);
-    const fraction = next < 0
-      ? 1
-      : centerFraction(lower, upper, playhead, centers);
-    const position = lower + fraction;
-    const overlay = smooth(clamp((fraction - .22) / .56, 0, 1));
-
-    frames.forEach(({ frame, image }, index) => {
-      frame.style.opacity = index === lower ? '1' : index === upper ? overlay.toFixed(4) : '0';
-      const distance = clamp(index - position, -1, 1);
-      const scale = 1.09 + Math.abs(distance) * .045;
-      image.style.transform = `translate3d(0,${(distance * 3.1).toFixed(3)}%,0) scale(${scale.toFixed(4)})`;
-    });
-
-    const fullTravel = clamp((playhead - tourBounds.top) / tourBounds.height, 0, 1);
-    progress.style.transform = `scaleX(${fullTravel.toFixed(4)})`;
   }
 
-  function centerFraction(lower, upper, playhead, centers) {
-    if (lower === upper) return 0;
-    return clamp((playhead - centers[lower]) / (centers[upper] - centers[lower]), 0, 1);
-  }
-
-  function requestDraw() {
-    if (!tick) tick = requestAnimationFrame(draw);
+  function schedule() {
+    if (!frame) frame = requestAnimationFrame(draw);
   }
 
   function syncMotion() {
-    if (!preference.matches) {
-      window.removeEventListener('scroll', requestDraw);
-      window.removeEventListener('resize', requestDraw);
-      cancelAnimationFrame(tick);
-      tick = 0;
-      delete tour.dataset.motion;
-      heroImage.style.removeProperty('transform');
+    if (motion.matches) {
+      stack.dataset.stack = 'scroll';
+      if (!pins.matches) rooms.forEach((room) => room.style.removeProperty('--sheet-scale'));
+      window.addEventListener('scroll', schedule, { passive: true });
+      window.addEventListener('resize', schedule);
+      schedule();
       return;
     }
 
-    if (!frames.length) {
-      frames = originals.map((figure) => {
-        const frame = document.createElement('div');
-        const original = figure.querySelector('.venue-photo, .venue-art');
-        const image = original instanceof HTMLImageElement ? original.cloneNode(false) : document.createElement('div');
-        if (image instanceof HTMLImageElement) {
-          image.alt = '';
-        } else {
-          image.className = original.className;
-          image.append(document.createElement('span'));
-        }
-        frame.className = 'tour-frame';
-        frame.append(image);
-        canvas.append(frame);
-        return { frame, image };
-      });
-    }
-
-    tour.dataset.motion = 'on';
-    window.addEventListener('scroll', requestDraw, { passive: true });
-    window.addEventListener('resize', requestDraw);
-    requestDraw();
+    delete stack.dataset.stack;
+    window.removeEventListener('scroll', schedule);
+    window.removeEventListener('resize', schedule);
+    cancelAnimationFrame(frame);
+    frame = 0;
+    photos.forEach((photo) => {
+      photo.style.removeProperty('--photo-shift');
+      photo.style.removeProperty('--photo-scale');
+    });
+    rooms.forEach((room) => room.style.removeProperty('--sheet-scale'));
+    setCurrent();
   }
 
-  preference.addEventListener('change', syncMotion);
+  pins.addEventListener('change', syncMotion);
+  motion.addEventListener('change', syncMotion);
   syncMotion();
 }
